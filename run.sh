@@ -1,6 +1,135 @@
 #!/bin/bash
 
-. global.sh
+# Defines the path to your SW console executeable
+DOCROOT="php /var/www/shopware/bin/console"
+
+
+#DIR="$(cd "$(dirname "$0")" && pwd)" TODO change path for Symlink
+DIR="$(dirname "$(readlink -f "$0")")"
+
+# comment will simply generate the shell output Headline
+function comment {
+test=${#1}
+init="###"
+
+while [ $test -gt 0 ]
+do
+   init=$init"#"
+   test=$((test-1))
+done
+
+echo -e "\n"$init"###"
+echo -e "## $1 ##"
+echo -e $init"###\n"
+
+}
+
+# SNIPPET START
+
+function missingsnippets {
+echo -n "Enter locale [e.g. de_CH or fr_CH]: "
+read locale
+$DOCROOT sw:snippets:find:missing $locale
+echo ".ini Files will be in snippetsExport"
+}
+
+function importsnippets {
+echo -n "Enter folder from your Shopware Root Path [e.g. snippets]: "
+read folder
+$DOCROOT sw:snippets:to:db --source $folder
+echo "Check your database"
+}
+
+function exportsnippets {
+echo -n "Enter locale [e.g. de_CH or fr_CH]: "
+read locale
+$DOCROOT sw:snippets:to:ini --source $folder
+echo ".ini Files will be in snippetsExport"
+}
+
+
+function snippet {
+ESC=$(printf "\e")
+PS3="$ESC[42m $ESC[97m $ESC[1m Please choose your options: $ESC[0m"
+options=("Export missing Snippets" "Import snippets" "Export snippets" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Export missing Snippets")
+            missingsnippets
+            break
+            ;;
+        "Import snippets")
+            importsnippets
+            break
+            ;;
+         "Export snippets")
+            exportsnippets
+            break
+            ;;
+        "Quit")
+            echo "You are leaving snippets."
+            exit
+            ;;
+        *) echo invalid option;;
+    esac
+done
+}
+# SNIPPET END
+
+# PLUGIN START
+function pluginhelper {
+$DOCROOT sw:plugin:$1 $2
+}
+
+function pluginparams {
+echo -n "Enter plugin name [ENTER]: "
+read pname
+pluginhelper $1 $pname
+}
+
+function plugin {
+  ESC=$(printf "\e")
+  PS3="$ESC[41m $ESC[97m $ESC[1m Please choose your options: $ESC[0m"
+  options=("List all" "Activate" "Deactivate" "Install" "Uninstall" "Refresh" "Quit")
+  select opt in "${options[@]}"
+  do
+      case $opt in
+          "List all")
+              pluginhelper list
+              break
+              ;;
+          "Activate")
+              pluginparams activate
+              break
+              ;;
+           "Deactivate")
+              pluginparams deactivate
+              break
+              ;;
+          "Install")
+              pluginparams install
+              break
+              ;;
+          "Uninstall")
+              pluginparams uninstall
+              break
+              ;;
+          "Refresh")
+              pluginhelper refresh
+              break
+              ;;
+          "Quit")
+              echo "You are leaving plugins."
+              exit
+              ;;
+          *) echo invalid option;;
+      esac
+  done
+}
+# PLUGIN END
+
+
 
 function compile {
 echo -n "Enter Shop Id [id | id1,id2,id3 | all]: "
@@ -58,7 +187,7 @@ do
             ;;
          "Plugin [Options]")
             comment "PLUGINS"
-            ./functions/plugins.sh
+            plugin
             break
             ;;
         "Show cronjobs")
@@ -71,7 +200,7 @@ do
             ;;
         "Snippets")
             comment "SNIPPETS"
-            ./functions/snippets.sh
+            snippet
             break
             ;;
         "Quit")
@@ -88,5 +217,5 @@ read option
 if [[ $option == 'y' ]]; then
 exit 0
 elif [[ $option == 'n' ]]; then
-./run.sh
+$DIR/run.sh
 fi
