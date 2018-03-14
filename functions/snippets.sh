@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. global.sh
+. ./global.sh
 
 function missingsnippets {
 echo -n "Enter locale [e.g. de_CH or fr_CH]: "

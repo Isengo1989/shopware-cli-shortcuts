@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. global.sh
+. ./global.sh
 
 function pluginhelper {
 $DOCROOT sw:plugin:$1 $2

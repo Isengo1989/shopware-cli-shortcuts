@@ -58,7 +58,7 @@ do
             ;;
          "Plugin [Options]")
             comment "PLUGINS"
-            ./plugins.sh
+            ./functions/plugins.sh
             break
             ;;
         "Show cronjobs")
@@ -71,7 +71,7 @@ do
             ;;
         "Snippets")
             comment "SNIPPETS"
-            ./snippets.sh
+            ./functions/snippets.sh
             break
             ;;
         "Quit")
@@ -88,5 +88,5 @@ read option
 if [[ $option == 'y' ]]; then
 exit 0
 elif [[ $option == 'n' ]]; then
-./sw.sh
+./run.sh
 fi
