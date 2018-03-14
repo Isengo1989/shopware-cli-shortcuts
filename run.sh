@@ -56,7 +56,7 @@ function missingsnippets {
 echo -n "Enter locale [e.g. de_CH or fr_CH]: "
 read locale
 $DOCROOT sw:snippets:find:missing $locale
-echo ".ini Files will be in snippetsExport"
+echo ".ini Files will be in snippetsExport of your Script"
 }
 
 function importsnippets {
@@ -69,14 +69,14 @@ echo "Check your database"
 function exportsnippets {
 echo -n "Enter locale [e.g. de_CH or fr_CH]: "
 read locale
-$DOCROOT sw:snippets:to:ini --source $folder
-echo ".ini Files will be in snippetsExport"
+$DOCROOT sw:snippets:to:ini $locale
+echo ".ini Files will be in snippetsExport of your Shop Root"
 }
 
 
 function snippet {
 ESC=$(printf "\e")
-PS3="$ESC[42m $ESC[97m $ESC[1m Please choose your options: $ESC[0m"
+PS3="$ESC[42m $ESC[97m $ESC[1m Please choose your snippet options: $ESC[0m"
 options=("Export missing Snippets" "Import snippets" "Export snippets" "Quit")
 select opt in "${options[@]}"
 do
@@ -116,7 +116,7 @@ pluginhelper $1 $pname
 
 function plugin {
   ESC=$(printf "\e")
-  PS3="$ESC[41m $ESC[97m $ESC[1m Please choose your options: $ESC[0m"
+  PS3="$ESC[41m $ESC[97m $ESC[1m Please choose your plugin options: $ESC[0m"
   options=("List all" "Activate" "Deactivate" "Install" "Uninstall" "Refresh" "Quit")
   select opt in "${options[@]}"
   do
