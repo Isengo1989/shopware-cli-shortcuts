@@ -3,6 +3,32 @@
 # Defines the path to your SW console executeable
 DOCROOT="php /var/www/shopware/bin/console"
 
+# If you want to choose between shops uncomment this and set paths to your instances
+#ESC=$(printf "\e")
+#PS3="$ESC[42m $ESC[97m $ESC[1m Please choose your shop: $ESC[0m"
+#options=("Shop1" "Shop2" "Shop3" "Quit")
+#select opt in "${options[@]}"
+#do
+#    case $opt in
+#        "Shop1")
+#            DOCROOT="php /var/www/shop1/bin/console"
+#            break
+#            ;;
+#        "Shop2")
+#            DOCROOT="php /var/www/shop2/bin/console"
+#            break
+#            ;;
+#         "Shop3")
+#            DOCROOT="php /var/www/shop3/bin/console"
+#            break
+#            ;;
+#        "Quit")
+#            echo "Use default shop"
+#            break
+#            ;;
+#        *) echo invalid option;;
+#    esac
+#done
 
 #DIR="$(cd "$(dirname "$0")" && pwd)" TODO change path for Symlink
 DIR="$(dirname "$(readlink -f "$0")")"
