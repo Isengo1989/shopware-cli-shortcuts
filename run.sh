@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Defines the path to your SW console executeable
-DOCROOT="php /var/www/shopware/bin/console"
+DOCROOT="/var/www/shopware"
 
 # If you want to choose between shops uncomment this and set paths to your instances
 #ESC=$(printf "\e")
@@ -11,15 +11,15 @@ DOCROOT="php /var/www/shopware/bin/console"
 #do
 #    case $opt in
 #        "Shop1")
-#            DOCROOT="php /var/www/shop1/bin/console"
+#            DOCROOT="/var/www/shop1"
 #            break
 #            ;;
 #        "Shop2")
-#            DOCROOT="php /var/www/shop2/bin/console"
+#            DOCROOT="/var/www/shop2"
 #            break
 #            ;;
 #         "Shop3")
-#            DOCROOT="php /var/www/shop3/bin/console"
+#            DOCROOT="/var/www/shop3"
 #            break
 #            ;;
 #        "Quit")
@@ -29,6 +29,8 @@ DOCROOT="php /var/www/shopware/bin/console"
 #        *) echo invalid option;;
 #    esac
 #done
+
+CONSOLE="php $DOCROOT/bin/console"
 
 #DIR="$(cd "$(dirname "$0")" && pwd)" TODO change path for Symlink
 DIR="$(dirname "$(readlink -f "$0")")"
@@ -55,21 +57,21 @@ echo -e $init"###\n"
 function missingsnippets {
 echo -n "Enter locale [e.g. de_CH or fr_CH]: "
 read locale
-$DOCROOT sw:snippets:find:missing $locale
+$CONSOLE sw:snippets:find:missing $locale
 echo ".ini Files will be in snippetsExport of your Script"
 }
 
 function importsnippets {
 echo -n "Enter folder from your Shopware Root Path [e.g. snippets]: "
 read folder
-$DOCROOT sw:snippets:to:db --source $folder
+$CONSOLE sw:snippets:to:db --source $folder
 echo "Check your database"
 }
 
 function exportsnippets {
 echo -n "Enter locale [e.g. de_CH or fr_CH]: "
 read locale
-$DOCROOT sw:snippets:to:ini $locale
+$CONSOLE sw:snippets:to:ini $locale
 echo ".ini Files will be in snippetsExport of your Shop Root"
 }
 
@@ -105,7 +107,7 @@ done
 
 # PLUGIN START
 function pluginhelper {
-$DOCROOT sw:plugin:$1 $2
+$CONSOLE sw:plugin:$1 $2
 }
 
 function pluginparams {
@@ -153,8 +155,6 @@ function plugin {
       esac
   done
 }
-# PLUGIN END
-
 
 
 function compile {
@@ -164,12 +164,12 @@ read id
 if [[ $id = *","* ]]; then
     for i in $(echo $id | tr ',' '\n')
     do
-    $DOCROOT sw:theme:cache:generate --shopId=$i
+    $CONSOLE sw:theme:cache:generate --shopId=$i
     done
 elif [[ $id = "all" ]]; then
-$DOCROOT sw:theme:cache:generate
+$CONSOLE sw:theme:cache:generate
 else
-$DOCROOT sw:theme:cache:generate --shopId=$id
+$CONSOLE sw:theme:cache:generate --shopId=$id
 fi
 }
 
@@ -178,7 +178,7 @@ function warmup {
 echo -n "See List of all Shops? [y/n]: "
 read id
 if [[ $id == 'y' ]]; then
-$DOCROOT dbal:run-sql "SELECT id,name FROM s_core_shops WHERE active = 1"
+$CONSOLE dbal:run-sql "SELECT id,name FROM s_core_shops WHERE active = 1"
 fi
 
 echo -n "Enter Shop Id [ENTER]: "
@@ -187,17 +187,34 @@ read id
 if [[ $id = *","* ]]; then
     for i in $(echo $id | tr ',' '\n')
     do
-    $DOCROOT sw:warm:http:cache $i
+    $CONSOLE sw:warm:http:cache $i
     done
 else
-$DOCROOT sw:warm:http:cache $id
+$CONSOLE sw:warm:http:cache $id
 fi
+}
+
+function grunter {
+echo "Dump grunt json Files in web/cache"
+$CONSOLE sw:theme:dump:configuration
+
+echo "Clear http cache"
+$CONSOLE sw:cache:clear
+
+echo "Clear cache with clear_cache.sh"
+/bin/sh $DOCROOT/var/cache/clear_cache.sh
+
+
+echo -n "Enter Shop Id [ENTER]: "
+read id
+
+cd $DOCROOT/themes && gnome-terminal -e "grunt --shopId=$id"
 }
 
 comment "Shopware CLI Shortcuts"
 ESC=$(printf "\e")
 PS3="$ESC[44m $ESC[97m $ESC[1m Please choose your options: $ESC[0m"
-options=("Theme compiling" "Clear cache" "Plugin [Options]" "Show cronjobs" "Warmup Cache" "Snippets" "Quit")
+options=("Theme compiling" "Clear cache" "Plugin [Options]" "Show cronjobs" "Warmup Cache" "Snippets" "Grunt" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -208,7 +225,7 @@ do
             ;;
         "Clear cache")
             comment "Clear cache"
-            $DOCROOT sw:cache:clear
+            $CONSOLE sw:cache:clear
             break
             ;;
          "Plugin [Options]")
@@ -217,7 +234,7 @@ do
             break
             ;;
         "Show cronjobs")
-            $DOCROOT  sw:cron:list
+            $CONSOLE  sw:cron:list
             break
             ;;
         "Warmup Cache")
@@ -227,6 +244,11 @@ do
         "Snippets")
             comment "SNIPPETS"
             snippet
+            break
+            ;;
+        "Grunt")
+            comment "Grunt"
+            grunter
             break
             ;;
         "Quit")
