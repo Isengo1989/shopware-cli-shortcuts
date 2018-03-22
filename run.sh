@@ -3,7 +3,7 @@
 # Defines the path to your SW console executeable
 DOCROOT="/var/www/shopware"
 
-# Asks every time if you want to stay in script
+# Asks after every execution if you want to stay in script | 0 = off | 1 = on
 STAY=0
 
 # If you want to choose between shops uncomment this and set paths to your instances
