@@ -211,7 +211,7 @@ echo "Clear cache with clear_cache.sh"
 echo -n "Enter Shop Id [ENTER]: "
 read id
 
-cd $DOCROOT/themes && gnome-terminal -e "grunt --shopId=$id"
+cd $DOCROOT/themes && gnome-terminal -x bash -c "grunt --shopId=$id"
 }
 
 comment "Shopware CLI Shortcuts"
